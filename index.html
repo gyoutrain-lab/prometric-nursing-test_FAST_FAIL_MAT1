@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCFHS Maternity Nursing Specialist Simulator</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --card-sec: #f8f9fa;
+      --border: #e1e4e8;
+      --text: #000000;
+      --danger: #cb2431;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    input[type="text"] {
+      padding: 6px 8px;
+      border: 1px solid #767676;
+      border-radius: 2px;
+      font-size: 0.9rem;
+      width: 100%;
+    }
+
+    .timer {
+      color: var(--danger);
+      font-size: 1.1rem;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .q-card {
+      background: #ffffff;
+      border: 1px solid #e1e4e8;
+      border-radius: 4px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .q-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+      line-height: 1.45;
+      white-space: pre-line;
+    }
+
+    .options-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .options-group label {
+      font-weight: normal;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: #fdfdfd;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+    }
+
+    .options-group label:hover {
+      background: #f0f3f6;
+    }
+
+    .btn-submit {
+      padding: 6px 16px;
+      border: 1px solid #767676;
+      background: #f0f0f0;
+      cursor: pointer;
+      border-radius: 2px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .btn-submit:hover {
+      background: #e0e0e0;
+    }
+
+    .analytics-card {
+      background: var(--card-sec);
+      border: 1px solid #e1e4e8;
+      border-radius: 4px;
+      padding: 16px;
+    }
+
+    .analytics-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+    }
+
+    .stat-line {
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+
+    .status-badge {
+      font-weight: 700;
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: #b08800;
+    }
+
+    .fail-banner {
+      background-color: #ffdce0;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 12px;
+      border-radius: 4px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>SCFHS Maternity Nursing Specialist Simulator (100 Items)</h1>
+
+  <div class="form-group">
+    <label for="student-name">Candidate Name / ID:</label>
+    <input type="text" id="student-name" placeholder="Enter full name" autocomplete="off">
+  </div>
+
+  <div class="timer">Time Remaining: <span id="timer-display">300</span>s</div>
+
+  <div class="fail-banner" id="fail-banner">
+    FAST FAIL TERMINATION: CRITICAL MATERNITY SPECIALIST ERROR DETECTED!
+  </div>
+
+  <div class="q-card" id="q-card">
+    <div class="q-title" id="q-title">Loading advanced maternity specialist exam items...</div>
+    <div class="options-group" id="options-container"></div>
+    <button class="btn-submit" id="btn-submit" onclick="submitAnswer()">Submit Answer</button>
+  </div>
+
+  <div class="analytics-card">
+    <div class="analytics-title">Specialist Competency Analytics</div>
+    <div class="stat-line">Progress Score: <span id="stat-score">0/0</span></div>
+    <div class="stat-line">Delay / Prioritization Errors: <span id="stat-delay">0</span></div>
+    <div class="stat-line">Scope / Protocol Errors: <span id="stat-scope">0</span></div>
+    <div class="stat-line">Fetal Monitoring & Emergencies (ABC): <span id="stat-abc">0</span></div>
+    <div class="stat-line">High-Alert Safety & Pharmacology: <span id="stat-safety">0</span></div>
+    <div class="status-badge" id="status-badge">EVALUATION IN PROGRESS</div>
+  </div>
+
+  <script>
+    // Maternity Nursing Specialist High-Yield Mistake Core Scenario Dataset
+    const maternitySpecialistPool = [
+      { 
+        text: "A laboring woman at 39 weeks gestation on Oxytocin infusion shows persistent late decelerations with loss of variability on FHR monitor. Uterine contractions occur every 1.5 minutes lasting 90 seconds.", 
+        options: ["Stop Oxytocin infusion immediately and turn patient to left lateral position", "Increase IV fluids and notify physician in 30 minutes", "Apply oxygen 2 L/min via nasal cannula", "Perform immediate sterile vaginal exam"], 
+        correct: 0, 
+        tag: "ABC" 
+      },
+      { 
+        text: "A multiparous patient in second-stage labor experiences sudden cessation of uterine contractions, sharp tearing abdominal pain, loss of fetal station, and severe fetal bradycardia.", 
+        options: ["Prepare for immediate emergency Cesarean section for suspected uterine rupture", "Increase Oxytocin rate to re-establish labor", "Apply vacuum extractor immediately", "Place patient in knee-chest position"], 
+        correct: 0, 
+        tag: "ABC" 
+      },
+      { 
+        text: "A pre-eclamptic patient receiving IV Magnesium Sulfate at 2 g/hr has a respiratory rate of 9 breaths/min, absent patellar reflexes, and urine output of 15 mL/hr.", 
+        options: ["Stop Magnesium Sulfate infusion immediately and prepare IV Calcium Gluconate", "Slow Magnesium infusion rate by half and reassess in 1 hour", "Administer IV Furosemide to increase urine output", "Increase IV fluid bolus to treat oliguria"], 
+        correct: 0, 
+        tag: "Safety" 
+      },
+      { 
+        text: "During delivery, the fetal head emerges but retracts tightly against the maternal perineum (turtle sign). The anterior shoulder fails to deliver under pubic arch.", 
+        options: ["Perform McRoberts maneuver and apply suprapubic pressure", "Apply firm fundal pressure to assist delivery", "Instruct patient to push continuously with next contraction", "Attempt immediate mid-forceps rotation"], 
+        correct: 0, 
+        tag: "ABC" 
+      },
+      { 
+        text: "A patient 1 hour post-vaginal delivery experiences profuse uterine bleeding (estimated loss 1100 mL). Fundus is boggy and elevated above umbilicus. History of severe asthma.", 
+        options: ["Perform fundal massage and administer IV Oxytocin (avoid Carboprost)", "Administer Carboprost (Hemabate) IM immediately", "Administer Methylergonovine (Methergine) IM immediately", "Place patient in Trendelenburg and apply abdominal binder"], 
+        correct: 0, 
+        tag: "Safety" 
+      },
+      { 
+        text: "A patient at 32 weeks gestation presents with dark vaginal bleeding, severe continuous uterine rigidity ('board-like' abdomen), and severe fetal distress.", 
+        options: ["Assess maternal vitals, initiate large-bore IVs, and prepare for rapid delivery (Abruptio Placentae)", "Perform a digital vaginal examination to check cervical dilation", "Administer Tocolytic agents to arrest labor", "Order an outpatient ultrasound and discharge if pain subsides"], 
+        correct: 0, 
+        tag: "ABC" 
+      },
+      { 
+        text: "A pregnant patient at 36 weeks with painless, bright red vaginal bleeding arrives at the triage unit.", 
+        options: ["Avoid vaginal examination and perform abdominal ultrasound (Placenta Previa)", "Perform immediate sterile speculum examination", "Perform digital cervical exam to check dilation", "Administer IV Oxytocin to control bleeding"], 
+        correct: 0, 
+        tag: "Safety" 
+      },
+      { 
+        text: "A patient following artificial rupture of membranes (AROM) shows sudden deep variable decelerations to 60 bpm. On vaginal exam, a pulsating loop is felt in the vagina.", 
+        options: ["Keep gloved hand in vagina pushing fetal presenting part off the cord, call for emergency C-section", "Remove hand immediately to maintain sterile field", "Place patient supine and encourage bearing down", "Administer Oxytocin to speed up delivery"], 
+        correct: 0, 
+        tag: "ABC" 
+      },
+      { 
+        text: "A postpartum patient with blood pressure 165/105 mmHg is experiencing uterine atony and heavy bleeding after oxytocin failed.", 
+        options: ["Administer Misoprostol or Carboprost (avoid Methylergonovine/Methergine)", "Administer Methylergonovine 0.2 mg IM", "Increase Oxytocin rate to 100 units/min bolus", "Administer Sublingual Nifedipine and wait"], 
+        correct: 0, 
+        tag: "Safety" 
+      },
+      { 
+        text: "A G1P0 at 38 weeks with severe preeclampsia suddenly develops tonic-clonic seizures during labor.", 
+        options: ["Protect airway, turn to lateral position, administer IV Magnesium Sulfate bolus", "Place tongue blade in mouth to prevent tongue biting", "Restrain extremities firmly to prevent injury", "Deliver fetus immediately during the active tonic phase"], 
+        correct: 0, 
+        tag: "ABC" 
+      },
+      { 
+        text: "A laboring patient's monitor shows late decelerations. The nurse turns the patient laterally and increases IV fluids. What is the next immediate priority?", 
+        options: ["Administer 10 L/min Oxygen via non-rebreather mask and stop Oxytocin if running", "Notify the physician and wait for bedside evaluation", "Prepare the patient for immediate epidural analgesia", "Perform fetal scalp stimulation to check response"], 
+        correct: 0, 
+        tag: "Delay" 
+      },
+      { 
+        text: "A client at 28 weeks gestation is receiving IV Terbutaline for preterm labor. Which finding requires immediate discontinuation of the medication?", 
+        options: ["Maternal heart rate of 140 bpm and complaints of dyspnea/chest tightness", "Maternal blood glucose of 110 mg/dL", "Mild fetal tachycardia of 165 bpm", "Mild hand tremors and nervous feeling"], 
+        correct: 0, 
+        tag: "Safety" 
+      },
+      { 
+        text: "A newborn delivered at 38 weeks presents with cyanosis of hands/feet, heart rate 110 bpm, active motion, strong cry, and prompt cough on suction. What is the 1-minute APGAR score?", 
+        options: ["9", "10", "8", "7"], 
+        correct: 0, 
+        tag: "Scope" 
+      },
+      { 
+        text: "A Rh-negative mother delivers an Rh-positive infant. The direct Coombs test on the infant is negative. When should Rho(D) Immune Globulin (RhoGAM) be administered?", 
+        options: ["Within 72 hours post-delivery IM to the mother", "Directly to the infant within 24 hours of birth", "To the mother at 6 weeks postpartum checkup", "RhoGAM is not indicated since Coombs is negative"], 
+        correct: 0, 
+        tag: "Safety" 
+      },
+      { 
+        text: "A postpartum patient 4 days post-delivery presents with a swollen, tender right calf with warmth and erythema.", 
+        options: ["Place on bed rest, elevate limb, and initiate anticoagulant therapy", "Massage calf vigorously to relieve muscle spasm", "Apply cold ice packs and encourage ambulation", "Place knee gatch elevated on bed"], 
+        correct: 0, 
+        tag: "Safety" 
+      },
+      { 
+        text: "A pregnant woman at 30 weeks experiences sudden membrane rupture. Nitrazine paper turns dark blue and ferning pattern is visible under microscope.", 
+        options: ["Diagnose PPROM; monitor for signs of chorioamnionitis and avoid frequent vaginal exams", "Perform digital vaginal exams every 2 hours to check progression", "Administer Oxytocin to initiate delivery within 4 hours", "Instruct patient to douche to prevent infection"], 
+        correct: 0, 
+        tag: "Safety" 
+      },
+      { 
+        text: "A patient at 34 weeks with severe preeclampsia shows PLT 45,000/mcL, AST 180 U/L, and LDH 800 U/L. What syndrome is suspected?", 
+        options: ["HELLP Syndrome requiring immediate stabilization and delivery planning", "DIC requiring heparin infusion primary therapy", "Idiopathic Thrombocytopenic Purpura", "Normal physiological changes of late pregnancy"], 
+        correct: 0, 
+        tag: "ABC" 
+      },
+      { 
+        text: "During administration of IV Oxytocin for labor induction, uterine resting tone rises above 25 mmHg with contractions lasting 110 seconds every 1 minute.", 
+        options: ["Discontinue Oxytocin infusion immediately (Uterine Tachysystole)", "Increase Oxytocin rate to overcome uterine resistance", "Administer IV Sedative to rest uterus", "Document as normal active stage labor pattern"], 
+        correct: 0, 
+        tag: "Safety" 
+      },
+      { 
+        text: "A patient 2 days postpartum has fever 38.8°C, foul-smelling lochia, uterine tenderness, and pelvic pain.", 
+        options: ["Obtain cervical cultures and initiate broad-spectrum IV antibiotics for endometritis", "Encourage strict bed rest without antibiotic therapy", "Administer oral antipyretic and discharge home", "Perform immediate bedside uterine curettage"], 
+        correct: 0, 
+        tag: "Delay" 
+      },
+      { 
+        text: "A newborn exhibits a soft tissue swelling on the scalp that crosses suture lines and recedes within 48 hours.", 
+        options: ["Document as Caput Succedaneum (normal finding)", "Document as Cephalohematoma and order emergency CT scan", "Prepare for needle aspiration of scalp fluid", "Notify neurosurgeon for subgaleal hemorrhage"], 
+        correct: 0, 
+        tag: "Scope" 
+      },
+      { 
+        text: "A laboring client has an epidural placed. 10 minutes later, maternal BP drops from 120/75 to 82/48 mmHg, and FHR shows recurrent late decelerations.", 
+        options: ["Position patient laterally, IV fluid bolus, oxygen, and prepare Ephedrine IV", "Place patient in high Fowler position immediately", "Slow down main IV fluids to prevent fluid overload", "Administer IV Atropine bolus immediately"], 
+        correct: 0, 
+        tag: "ABC" 
+      },
+      { 
+        text: "A pregnant client at 14 weeks gestation reports dark brown vaginal discharge and hyperemesis. Uterine height corresponds to 20 weeks; hCG levels are markedly elevated.", 
+        options: ["Prepare for suction curettage for Hydatidiform Mole (Molar Pregnancy)", "Administer IV Progesterone to maintain pregnancy", "Encourage complete bed rest for threatened abortion", "Perform emergency cerclage placement"], 
+        correct: 0, 
+        tag: "Safety" 
+      },
+      { 
+        text: "A patient with complete placenta previa asks why she cannot have a normal vaginal delivery.", 
+        options: ["Placenta completely covers cervical os; vaginal delivery causes fatal hemorrhage", "Vaginal delivery increases risk of fetal limb fractures", "Placenta previa causes severe labor pain that cannot be managed", "Vaginal delivery leads to immediate uterine inversion"], 
+        correct: 0, 
+        tag: "Scope" 
+      },
+      { 
+        text: "A G2P1 patient at 39 weeks presents in active labor. Fetal head is engaged at +2 station. Membranes rupture spontaneously showing thick pea-soup meconium.", 
+        options: ["Monitor fetal heart rate closely and prepare neonatal resuscitation team", "Perform immediate amnioinfusion of 2000 mL normal saline force push", "Administer IV broad-spectrum antibiotics to mother immediately", "Cancel labor and proceed to emergency C-section immediately regardless of FHR"], 
+        correct: 0, 
+        tag: "ABC" 
+      },
+      { 
+        text: "A postpartum woman receiving IV Oxytocin for third stage of labor exhibits sudden acute shortness of breath, cyanosis, hypotension, and DIC.", 
+        options: ["Initiate high-flow resuscitation for suspected Amniotic Fluid Embolism (AFE)", "Administer IV Antihistamine for severe allergic reaction", "Place in prone position and decrease IV fluids", "Perform immediate bedside chest tube insertion"], 
+        correct: 0, 
+        tag: "ABC" 
+      }
+    ];
+
+    // Programmatically generate full 100 maternity specialist items
+    const questions = [];
+    for (let i = 0; i < 100; i++) {
+      const base = maternitySpecialistPool[i % maternitySpecialistPool.length];
+      questions.push({
+        text: `${base.text} [Maternity Specialist Case #${i + 1}]`,
+        options: [...base.options],
+        correct: base.correct,
+        tag: base.tag
+      });
+    }
+
+    let currentIndex = 0;
+    let score = 0;
+    let totalAnswered = 0;
+    let counts = { Delay: 0, Scope: 0, ABC: 0, Safety: 0 };
+    let timer = 300;
+    let isTerminated = false;
+
+    const timerInterval = setInterval(() => {
+      if (timer > 0 && !isTerminated) {
+        timer--;
+        document.getElementById('timer-display').innerText = timer;
+      } else if (timer === 0 && !isTerminated) {
+        triggerFastFail("TIME EXPIRED (SPECIALIST TIMED-OUT)");
+      }
+    }, 1000);
+
+    function loadQuestion() {
+      if (isTerminated) return;
+
+      if (currentIndex >= questions.length) {
+        document.getElementById('q-title').innerText = "SCFHS MATERNITY SPECIALIST EXAM PASSED PERFECTLY!";
+        document.getElementById('options-container').innerHTML = "";
+        document.getElementById('btn-submit').style.display = "none";
+        
+        const badge = document.getElementById('status-badge');
+        badge.innerText = "PASSED - MATERNITY SPECIALIST COMPETENCY CONFIRMED";
+        badge.style.color = "green";
+        return;
+      }
+
+      const q = questions[currentIndex];
+      document.getElementById('q-title').innerText = `Item ${currentIndex + 1} of 100:\n${q.text}`;
+      
+      let html = "";
+      q.options.forEach((opt, i) => {
+        html += `<label><input type="radio" name="option" value="${i}"> <span>${opt}</span></label>`;
+      });
+      document.getElementById('options-container').innerHTML = html;
+    }
+
+    function submitAnswer() {
+      if (isTerminated) return;
+
+      const selected = document.querySelector('input[name="option"]:checked');
+      if (!selected) return;
+
+      const answerVal = parseInt(selected.value);
+      const q = questions[currentIndex];
+
+      totalAnswered++;
+      if (answerVal === q.correct) {
+        score++;
+        currentIndex++;
+        updateAnalytics();
+        loadQuestion();
+      } else {
+        counts[q.tag] = (counts[q.tag] || 0) + 1;
+        triggerFastFail(`CRITICAL MATERNITY ${q.tag.toUpperCase()} ERROR`);
+      }
+    }
+
+    function triggerFastFail(reason = "CRITICAL OBSTETRIC ERROR DETECTED") {
+      isTerminated = true;
+      clearInterval(timerInterval);
+      
+      const banner = document.getElementById('fail-banner');
+      banner.innerText = `FAST FAIL TERMINATION: ${reason}!`;
+      banner.style.display = "block";
+      
+      document.getElementById('q-card').style.opacity = "0.4";
+      document.getElementById('btn-submit').disabled = true;
+      
+      const badge = document.getElementById('status-badge');
+      badge.innerText = "FAST FAIL - LICENSE DISQUALIFIED";
+      badge.style.color = "red";
+
+      updateAnalytics();
+    }
+
+    function updateAnalytics() {
+      document.getElementById('stat-score').innerText = `${score}/${totalAnswered}`;
+      document.getElementById('stat-delay').innerText = counts.Delay;
+      document.getElementById('stat-scope').innerText = counts.Scope;
+      document.getElementById('stat-abc').innerText = counts.ABC;
+      document.getElementById('stat-safety').innerText = counts.Safety;
+    }
+
+    // Initialize Simulator
+    loadQuestion();
+  </script>
+</body>
+</html>
